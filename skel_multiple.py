@@ -9,7 +9,7 @@ from multiprocessing import Value
 SOUTH = "north"
 NORTH = "south"
 
-NCARS = 5
+NCARS = 20
 
 class Monitor():
     def __init__(self, manager):
@@ -34,7 +34,6 @@ class Monitor():
         self.mutex.acquire()
         self.set_current_direction(direction)
         self.free_access.wait_for(self.is_free_access)
-        print(self.access[0], self.d == direction)
         if (direction == NORTH):
             self.ncar_n.value += 1
         else:
@@ -72,13 +71,16 @@ def main():
     manager = Manager()
     monitor = Monitor(manager)
     cid = 0
+    coche = []
     for i in range(NCARS):
-        direction = NORTH if random.randint(0,1)==1  else SOUTH
+        direction = NORTH if random.randint(0,1)==1 else SOUTH
         cid += 1
         p = Process(target=car, args=(cid, direction, monitor))
+        coche += [p]
         p.start()
         time.sleep(random.expovariate(1/0.5)) # a new car enters each 0.5s
-    p.join()
+    for p in coche:
+        p.join()
 
 if __name__=='__main__':
     main()
