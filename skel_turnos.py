@@ -10,6 +10,7 @@ SOUTH = "north"
 NORTH = "south"
 
 NCARS = 20
+maxWait = 3
 
 class Monitor():
     def __init__(self, manager):
@@ -19,20 +20,28 @@ class Monitor():
         self.d = NORTH
         self.access = manager.list([True])
         self.free_access = Condition(self.mutex)
+        self.t0 = 0
+        self.prohibition = Value('i',0)
 
     def set_current_direction(self, direction):
         self.d = direction
 
     def is_free_access(self):
+        t1 = time.time()
         if (self.d == NORTH):
             d = self.ncar_n.value > 0
         else:
             d = self.ncar_s.value > 0
-        return(self.access[0] or d)
+        if t1-self.t0 > maxWait:
+            self.prohibition = 1
+            if self.ncar_n + self.ncar_s == 0:
+                self.prohibition = 0
+        return (self.access[0] or d) and (self.prohibition.value == 0)
 
     def wants_enter(self, direction):
         self.mutex.acquire()
         self.set_current_direction(direction)
+        self.t0 = time.time()
         self.free_access.wait_for(self.is_free_access)
         if (direction == NORTH):
             self.ncar_n.value += 1
@@ -73,7 +82,7 @@ def main():
     cid = 0
     coche = []
     for i in range(NCARS):
-        direction = NORTH if random.randint(0,1)==1 else SOUTH
+        direction = NORTH if i==6 else SOUTH
         cid += 1
         p = Process(target=car, args=(cid, direction, monitor))
         coche += [p]
