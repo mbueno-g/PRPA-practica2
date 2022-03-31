@@ -24,10 +24,10 @@ class Monitor():
         self.ncar_s = Value('i', 0)
         self.mutex = Lock()
         self.d = NORTH
-        self.access = manager.list([True])
+        self.access = Value('i', 1)
         self.free_access = Condition(self.mutex)
         self.t0 = 0
-        self.prohibition = Value('i',0)
+        self.prohibition = Value('i', 0)
 
     def set_current_direction(self, direction):
         self.d = direction
@@ -42,7 +42,7 @@ class Monitor():
             self.prohibition.value = 1
             if self.ncar_n.value + self.ncar_s.value == 0:
                 self.prohibition.value = 0
-        return (self.access[0] or d) and (self.prohibition.value == 0)
+        return (self.access.value or d) and (self.prohibition.value == 0)
 
     def wants_enter(self, direction):
         self.mutex.acquire()
@@ -53,7 +53,7 @@ class Monitor():
             self.ncar_n.value += 1
         else:
             self.ncar_s.value += 1
-        self.access[0] = False
+        self.access.value = 0
         self.mutex.release()
 
     def leaves_tunnel(self, direction):
@@ -63,7 +63,7 @@ class Monitor():
         else:
             self.ncar_s.value -= 1
         if (self.ncar_n.value == 0 and self.ncar_s.value == 0):
-            self.access[0] = True
+            self.access.value = 1
         self.free_access.notify_all()
         self.mutex.release()
 
@@ -88,8 +88,7 @@ def main():
     cid = 0
     coche = []
     for i in range(NCARS):
-        direction = NORTH if i==6 else SOUTH
-        # random.randint(0,1)==1 
+        direction = NORTH if random.randint(0,1)==1 else SOUTH
         cid += 1
         p = Process(target=car, args=(cid, direction, monitor))
         coche += [p]

@@ -4,7 +4,7 @@ GRUPO: 18
 NOMBRES: Antonio Francisco Álvarez Gómez, Marcos Rocha Morales, Marina Bueno García
 VERSIÓN: 1
 En esta versión solo puede haber un coche en el túnel a la vez. Para controlarlo utilizamos
-un variable compartida que gestiona el acceso al túnel: False si hay un coche en el interior del túnel y True si no hay.
+un variable compartida que gestiona el acceso al túnel: 0 si hay un coche en el interior del túnel y 1 si no hay.
 """
 import time
 import random
@@ -14,31 +14,26 @@ from multiprocessing import Value
 SOUTH = "north"
 NORTH = "south"
 
-NCARS = 4
+NCARS = 10
 
 class Monitor():
     def __init__(self, manager):
         self.mutex = Lock()
-        self.d = NORTH
-        self.access = manager.list([True])
+        self.access = Value('i',1)
         self.free_access = Condition(self.mutex)
 
-    def set_current_direction(self, direction):
-        self.d = direction
-
     def is_free_access(self):
-        return(self.access[0])
+        return(self.access.value)
 
-    def wants_enter(self, direction):
+    def wants_enter(self):
         self.mutex.acquire()
-        self.set_current_direction(direction)
         self.free_access.wait_for(self.is_free_access)
-        self.access[0] = False
+        self.access.value = 0
         self.mutex.release()
 
-    def leaves_tunnel(self, direction):
+    def leaves_tunnel(self):
         self.mutex.acquire()
-        self.access[0] = True
+        self.access.value = 1
         self.free_access.notify_all()
         self.mutex.release()
 
@@ -49,11 +44,11 @@ def car(cid, direction, monitor):
     print(f"car {cid} direction {direction} created")
     delay(6)
     print(f"car {cid} heading {direction} wants to enter")
-    monitor.wants_enter(direction)
+    monitor.wants_enter()
     print(f"car {cid} heading {direction} enters the tunnel")
     delay(3)
     print(f"car {cid} heading {direction} leaving the tunnel")
-    monitor.leaves_tunnel(direction)
+    monitor.leaves_tunnel()
     print(f"car {cid} heading {direction} out of the tunnel")
 
 
