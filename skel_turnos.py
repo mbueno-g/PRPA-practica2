@@ -1,3 +1,11 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Mar 24 11:48:34 2022
+
+@author: alumno
+"""
+
 """
 Solution to the one-way tunnel
 """
@@ -9,7 +17,7 @@ from multiprocessing import Value
 SOUTH = "north"
 NORTH = "south"
 
-NCARS = 20
+NCARS = 5
 maxWait = 3
 
 class Monitor():
@@ -33,9 +41,9 @@ class Monitor():
         else:
             d = self.ncar_s.value > 0
         if t1-self.t0 > maxWait:
-            self.prohibition = 1
-            if self.ncar_n + self.ncar_s == 0:
-                self.prohibition = 0
+            self.prohibition.value = 1
+            if self.ncar_n.value + self.ncar_s.value == 0:
+                self.prohibition.value = 0
         return (self.access[0] or d) and (self.prohibition.value == 0)
 
     def wants_enter(self, direction):
@@ -82,7 +90,7 @@ def main():
     cid = 0
     coche = []
     for i in range(NCARS):
-        direction = NORTH if i==6 else SOUTH
+        direction = NORTH if random.randint(0,1)==1  else SOUTH
         cid += 1
         p = Process(target=car, args=(cid, direction, monitor))
         coche += [p]
@@ -93,4 +101,3 @@ def main():
 
 if __name__=='__main__':
     main()
-
