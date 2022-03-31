@@ -1,6 +1,14 @@
 """
-Solution to the one-way tunnel
+ENTREGA: 1 (solución al tunel con una sola dirección)
+GRUPO: 18
+NOMBRES: Antonio Francisco Álvarez Gómez, Marcos Rocha Morales, Marina Bueno García
+VERSIÓN: 2
+En esta versión puede haber más de un coche en el túnel siempre y cuando tengan la misma 
+dirección, dejando a los coches en dirección contraria esperando a que se les conceda el acceso. 
+Con respecto a la versión anterior añadimos dos variables compartidas que cuentan 
+el número de coches que hay en cada dirección dentro del túnel. 
 """
+
 import time
 import random
 from multiprocessing import Lock, Condition, Process, Manager

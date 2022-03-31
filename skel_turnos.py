@@ -1,14 +1,12 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
-Created on Thu Mar 24 11:48:34 2022
+ENTREGA: 1 (solución al tunel con una sola dirección)
+GRUPO: 18
+NOMBRES: Antonio Francisco Álvarez Gómez, Marcos Rocha Morales, Marina Bueno García
+VERSIÓN: 3
+En esta versión puede haber más de un coche en el túnel siempre y cuando tengan la misma 
+dirección, pero cada maxWait tiempo vaciamos el túnel dejando entrar a los coches en dirección contraria.
+"""
 
-@author: alumno
-"""
-
-"""
-Solution to the one-way tunnel
-"""
 import time
 import random
 from multiprocessing import Lock, Condition, Process, Manager
@@ -17,7 +15,7 @@ from multiprocessing import Value
 SOUTH = "north"
 NORTH = "south"
 
-NCARS = 5
+NCARS = 20
 maxWait = 3
 
 class Monitor():
@@ -90,7 +88,8 @@ def main():
     cid = 0
     coche = []
     for i in range(NCARS):
-        direction = NORTH if random.randint(0,1)==1  else SOUTH
+        direction = NORTH if i==6 else SOUTH
+        # random.randint(0,1)==1 
         cid += 1
         p = Process(target=car, args=(cid, direction, monitor))
         coche += [p]

@@ -1,5 +1,10 @@
 """
-Solution to the one-way tunnel
+ENTREGA: 1 (solución al tunel con una sola dirección)
+GRUPO: 18
+NOMBRES: Antonio Francisco Álvarez Gómez, Marcos Rocha Morales, Marina Bueno García
+VERSIÓN: 1
+En esta versión solo puede haber un coche en el túnel a la vez. Para controlarlo utilizamos
+un variable compartida que gestiona el acceso al túnel: False si hay un coche en el interior del túnel y True si no hay.
 """
 import time
 import random
